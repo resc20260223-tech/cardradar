@@ -20,21 +20,68 @@ const REGIONS = [
   { id: "chugoku", label: "中国・四国",   prefs: ["広島県","岡山県","山口県","鳥取県","島根県","愛媛県","香川県","高知県","徳島県"] },
   { id: "kyushu",  label: "九州・沖縄",   prefs: ["福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"] },
 ];
+// 店舗タイプ定義
+const SHOP_TYPES = {
+  tcg:       { label:"カードショップ", icon:"🃏", color:"#FFD700" },
+  electronics:{ label:"家電量販店",    icon:"🏪", color:"#00BFFF" },
+  convenience:{ label:"コンビニ",      icon:"🏬", color:"#FF8C00" },
+  used:      { label:"リユースショップ",icon:"♻️", color:"#00FF88" },
+  supermarket:{ label:"スーパー",      icon:"🛒", color:"#AA88FF" },
+  toy:       { label:"おもちゃ店",     icon:"🧸", color:"#FF69B4" },
+};
+
 const LOCATIONS = [
-  { id:1,  name:"カードラッシュ 秋葉原店", address:"東京都千代田区外神田",   pref:"東京都",  city:"千代田区" },
-  { id:2,  name:"遊々亭 池袋本店",         address:"東京都豊島区東池袋",     pref:"東京都",  city:"豊島区"   },
-  { id:3,  name:"トレトレ 新宿店",         address:"東京都新宿区新宿",       pref:"東京都",  city:"新宿区"   },
-  { id:4,  name:"カードショップ 渋谷",     address:"東京都渋谷区道玄坂",     pref:"東京都",  city:"渋谷区"   },
-  { id:5,  name:"ドラゴンスター 上野",     address:"東京都台東区上野",       pref:"東京都",  city:"台東区"   },
-  { id:6,  name:"カードキングダム 横浜",   address:"神奈川県横浜市西区",     pref:"神奈川県",city:"横浜市"   },
-  { id:7,  name:"TCG Station 川崎",        address:"神奈川県川崎市川崎区",   pref:"神奈川県",city:"川崎市"   },
-  { id:8,  name:"ポケカ倉庫 大宮",         address:"埼玉県さいたま市大宮区", pref:"埼玉県",  city:"さいたま市"},
-  { id:9,  name:"カードラッシュ 梅田店",   address:"大阪府大阪市北区",       pref:"大阪府",  city:"大阪市"   },
-  { id:10, name:"トレカパーク 難波",       address:"大阪府大阪市中央区",     pref:"大阪府",  city:"大阪市"   },
-  { id:11, name:"カードボックス 名古屋",   address:"愛知県名古屋市中村区",   pref:"愛知県",  city:"名古屋市" },
-  { id:12, name:"TCG天国 博多",            address:"福岡県福岡市博多区",     pref:"福岡県",  city:"福岡市"   },
-  { id:13, name:"カードショップ 札幌",     address:"北海道札幌市中央区",     pref:"北海道",  city:"札幌市"   },
-  { id:14, name:"仙台カードセンター",      address:"宮城県仙台市青葉区",     pref:"宮城県",  city:"仙台市"   },
+  // ── カードショップ ──
+  { id:1,  name:"カードラッシュ 秋葉原店",   address:"東京都千代田区外神田",      pref:"東京都",   city:"千代田区",   type:"tcg" },
+  { id:2,  name:"遊々亭 池袋本店",           address:"東京都豊島区東池袋",        pref:"東京都",   city:"豊島区",     type:"tcg" },
+  { id:3,  name:"トレトレ 新宿店",           address:"東京都新宿区新宿",          pref:"東京都",   city:"新宿区",     type:"tcg" },
+  { id:4,  name:"カードショップ 渋谷",       address:"東京都渋谷区道玄坂",        pref:"東京都",   city:"渋谷区",     type:"tcg" },
+  { id:5,  name:"ドラゴンスター 上野",       address:"東京都台東区上野",          pref:"東京都",   city:"台東区",     type:"tcg" },
+  { id:6,  name:"カードキングダム 横浜",     address:"神奈川県横浜市西区",        pref:"神奈川県", city:"横浜市",     type:"tcg" },
+  { id:7,  name:"TCG Station 川崎",          address:"神奈川県川崎市川崎区",      pref:"神奈川県", city:"川崎市",     type:"tcg" },
+  { id:8,  name:"ポケカ倉庫 大宮",           address:"埼玉県さいたま市大宮区",    pref:"埼玉県",   city:"さいたま市", type:"tcg" },
+  { id:9,  name:"カードラッシュ 梅田店",     address:"大阪府大阪市北区",          pref:"大阪府",   city:"大阪市",     type:"tcg" },
+  { id:10, name:"トレカパーク 難波",         address:"大阪府大阪市中央区",        pref:"大阪府",   city:"大阪市",     type:"tcg" },
+  { id:11, name:"カードボックス 名古屋",     address:"愛知県名古屋市中村区",      pref:"愛知県",   city:"名古屋市",   type:"tcg" },
+  { id:12, name:"TCG天国 博多",              address:"福岡県福岡市博多区",        pref:"福岡県",   city:"福岡市",     type:"tcg" },
+  { id:13, name:"カードショップ 札幌",       address:"北海道札幌市中央区",        pref:"北海道",   city:"札幌市",     type:"tcg" },
+  { id:14, name:"仙台カードセンター",        address:"宮城県仙台市青葉区",        pref:"宮城県",   city:"仙台市",     type:"tcg" },
+  // ── 家電量販店 ──
+  { id:15, name:"ヨドバシカメラ 秋葉原",     address:"東京都千代田区外神田",      pref:"東京都",   city:"千代田区",   type:"electronics" },
+  { id:16, name:"ビックカメラ 有楽町店",     address:"東京都千代田区有楽町",      pref:"東京都",   city:"千代田区",   type:"electronics" },
+  { id:17, name:"ヨドバシカメラ 新宿",       address:"東京都新宿区西新宿",        pref:"東京都",   city:"新宿区",     type:"electronics" },
+  { id:18, name:"ビックカメラ 池袋東口",     address:"東京都豊島区東池袋",        pref:"東京都",   city:"豊島区",     type:"electronics" },
+  { id:19, name:"ヨドバシカメラ 横浜",       address:"神奈川県横浜市西区高島",    pref:"神奈川県", city:"横浜市",     type:"electronics" },
+  { id:20, name:"ヨドバシカメラ 梅田",       address:"大阪府大阪市北区大深町",    pref:"大阪府",   city:"大阪市",     type:"electronics" },
+  { id:21, name:"ビックカメラ 名古屋",       address:"愛知県名古屋市中村区名駅",  pref:"愛知県",   city:"名古屋市",   type:"electronics" },
+  { id:22, name:"ヨドバシカメラ 札幌",       address:"北海道札幌市北区北六条西",  pref:"北海道",   city:"札幌市",     type:"electronics" },
+  { id:23, name:"ビックカメラ 福岡天神",     address:"福岡県福岡市中央区天神",    pref:"福岡県",   city:"福岡市",     type:"electronics" },
+  // ── コンビニ ──
+  { id:24, name:"セブン-イレブン 秋葉原",    address:"東京都千代田区外神田",      pref:"東京都",   city:"千代田区",   type:"convenience" },
+  { id:25, name:"ローソン 新宿歌舞伎町",     address:"東京都新宿区歌舞伎町",      pref:"東京都",   city:"新宿区",     type:"convenience" },
+  { id:26, name:"ファミリーマート 渋谷",     address:"東京都渋谷区道玄坂",        pref:"東京都",   city:"渋谷区",     type:"convenience" },
+  { id:27, name:"セブン-イレブン 梅田",      address:"大阪府大阪市北区梅田",      pref:"大阪府",   city:"大阪市",     type:"convenience" },
+  { id:28, name:"ローソン 名古屋栄",         address:"愛知県名古屋市中区栄",      pref:"愛知県",   city:"名古屋市",   type:"convenience" },
+  { id:29, name:"ファミリーマート 博多",     address:"福岡県福岡市博多区博多駅前", pref:"福岡県",  city:"福岡市",     type:"convenience" },
+  { id:30, name:"セブン-イレブン 札幌駅前",  address:"北海道札幌市北区北六条西",  pref:"北海道",   city:"札幌市",     type:"convenience" },
+  // ── リユース・中古 ──
+  { id:31, name:"ゲオ 秋葉原店",             address:"東京都千代田区外神田",      pref:"東京都",   city:"千代田区",   type:"used" },
+  { id:32, name:"ブックオフ 新宿店",         address:"東京都新宿区新宿",          pref:"東京都",   city:"新宿区",     type:"used" },
+  { id:33, name:"ゲオ 横浜店",               address:"神奈川県横浜市西区",        pref:"神奈川県", city:"横浜市",     type:"used" },
+  { id:34, name:"ブックオフ 大阪梅田",       address:"大阪府大阪市北区梅田",      pref:"大阪府",   city:"大阪市",     type:"used" },
+  { id:35, name:"ゲオ 名古屋大須",           address:"愛知県名古屋市中区大須",    pref:"愛知県",   city:"名古屋市",   type:"used" },
+  { id:36, name:"ブックオフ 福岡天神",       address:"福岡県福岡市中央区天神",    pref:"福岡県",   city:"福岡市",     type:"used" },
+  // ── スーパー・総合 ──
+  { id:37, name:"イオン 幕張店",             address:"千葉県千葉市美浜区",        pref:"千葉県",   city:"千葉市",     type:"supermarket" },
+  { id:38, name:"イオン 川口店",             address:"埼玉県川口市",              pref:"埼玉県",   city:"川口市",     type:"supermarket" },
+  { id:39, name:"イトーヨーカドー 津田沼",   address:"千葉県船橋市前原西",        pref:"千葉県",   city:"船橋市",     type:"supermarket" },
+  { id:40, name:"ドン・キホーテ 秋葉原",     address:"東京都千代田区外神田",      pref:"東京都",   city:"千代田区",   type:"supermarket" },
+  { id:41, name:"ドン・キホーテ 難波",       address:"大阪府大阪市中央区宗右衛門町",pref:"大阪府", city:"大阪市",     type:"supermarket" },
+  // ── おもちゃ・ホビー ──
+  { id:42, name:"トイザらス 秋葉原",         address:"東京都千代田区外神田",      pref:"東京都",   city:"千代田区",   type:"toy" },
+  { id:43, name:"アニメイト 池袋本店",       address:"東京都豊島区東池袋",        pref:"東京都",   city:"豊島区",     type:"toy" },
+  { id:44, name:"トイザらス 横浜",           address:"神奈川県横浜市港北区",      pref:"神奈川県", city:"横浜市",     type:"toy" },
+  { id:45, name:"アニメイト 大阪日本橋",     address:"大阪府大阪市浪速区",        pref:"大阪府",   city:"大阪市",     type:"toy" },
 ];
 const PACK_PRODUCTS = [
   { id:"sv8a", game:"pokemon",  name:"ロストアビス",         type:"BOX", image:"📦" },
@@ -259,15 +306,17 @@ function CardItem({ listing, isNew }) {
 /* ===================== 入荷レーダータブ ===================== */
 function RadarTab({ signals, selectedGames, newSignalIds, onDismissSignal }) {
   const [filterType, setFilterType] = useState("all");
+  const [shopType, setShopType]     = useState("all");
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [selectedPref, setSelectedPref]     = useState(null);
   const [selectedCity, setSelectedCity]     = useState(null);
   const [areaOpen, setAreaOpen]             = useState(false);
 
   const areaFiltered = signals.filter(s => {
-    if (!selectedRegion) return true;
     const loc = LOCATIONS.find(l=>l.id===s.locationId);
     if (!loc) return false;
+    if (shopType !== "all" && loc.type !== shopType) return false;
+    if (!selectedRegion) return true;
     const reg = REGIONS.find(r=>r.id===selectedRegion);
     if (!reg?.prefs.includes(loc.pref)) return false;
     if (selectedPref && loc.pref!==selectedPref) return false;
@@ -298,6 +347,14 @@ function RadarTab({ signals, selectedGames, newSignalIds, onDismissSignal }) {
 
   return (
     <div>
+      {/* 店舗タイプフィルター */}
+      <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:12 }}>
+        <button onClick={()=>setShopType("all")} style={{ background:shopType==="all"?"rgba(255,215,0,0.12)":"rgba(255,255,255,0.03)", border:`1px solid ${shopType==="all"?"rgba(255,215,0,0.4)":"rgba(255,255,255,0.07)"}`, borderRadius:6, padding:"5px 10px", cursor:"pointer", color:shopType==="all"?"#FFD700":"#666", fontSize:11 }}>すべての店舗</button>
+        {Object.entries(SHOP_TYPES).map(([key,st]) => (
+          <button key={key} onClick={()=>setShopType(shopType===key?"all":key)} style={{ background:shopType===key?`${st.color}22`:"rgba(255,255,255,0.03)", border:`1px solid ${shopType===key?st.color+"55":"rgba(255,255,255,0.07)"}`, borderRadius:6, padding:"5px 10px", cursor:"pointer", color:shopType===key?st.color:"#666", fontSize:11 }}>{st.icon} {st.label}</button>
+        ))}
+      </div>
+
       {/* エリア検索トグル */}
       <div style={{ marginBottom:12 }}>
         <button onClick={()=>setAreaOpen(o=>!o)} style={{
@@ -430,6 +487,7 @@ function SignalCard({ signal, isNew, onDismiss }) {
               <span style={{ color:"#E0E0E0", fontWeight:700, fontSize:14 }}>{product?.name}</span>
             </div>
             <div style={{ display:"flex", gap:6, flexWrap:"wrap", alignItems:"center" }}>
+              {location && <span style={{ background:`${SHOP_TYPES[location.type]?.color}22`, color:SHOP_TYPES[location.type]?.color, fontSize:10, padding:"1px 5px", borderRadius:3, fontWeight:700 }}>{SHOP_TYPES[location.type]?.icon} {SHOP_TYPES[location.type]?.label}</span>}
               <span style={{ color:"#666", fontSize:11 }}>📍 {location?.name}</span>
               {signal.stock!=null && <span style={{ background:"rgba(0,255,136,0.1)", color:"#00FF88", fontSize:11, padding:"1px 6px", borderRadius:4, fontWeight:700 }}>残{signal.stock}個</span>}
               <span style={{ color:"#333", fontSize:10, marginLeft:"auto" }}>{timeAgo(signal.detectedAt)}</span>
@@ -455,22 +513,47 @@ function SignalCard({ signal, isNew, onDismiss }) {
 
 /* ===================== マップタブ ===================== */
 function MapTab({ listings }) {
+  const [typeFilter, setTypeFilter] = useState("all");
   const byLoc = {};
   listings.forEach(l=>{ byLoc[l.locationId]=(byLoc[l.locationId]||0)+1; });
+
+  const filtered = LOCATIONS.filter(loc => typeFilter === "all" || loc.type === typeFilter);
+
   return (
-    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-      {LOCATIONS.map(loc => {
-        const cnt = byLoc[loc.id]||0;
-        return (
-          <div key={loc.id} style={{ background:"rgba(20,20,35,0.9)", border:`1px solid ${cnt>0?"rgba(255,215,0,0.2)":"rgba(255,255,255,0.06)"}`, borderRadius:12, padding:"12px 14px", display:"flex", alignItems:"center", gap:12 }}>
-            <div style={{ width:40, height:40, borderRadius:"50%", background:cnt>0?"linear-gradient(135deg,#FFD700,#FF8C00)":"rgba(40,40,60,0.9)", border:"2px solid rgba(255,255,255,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:cnt>0?16:18, fontWeight:800, color:"#000", boxShadow:cnt>0?"0 0 10px rgba(255,215,0,0.3)":"none" }}>{cnt>0?cnt:"📍"}</div>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ color:"#E0E0E0", fontWeight:700, fontSize:13 }}>{loc.name}</div>
-              <div style={{ color:"#555", fontSize:11, marginTop:2 }}>{loc.address}</div>
+    <div>
+      {/* 店舗タイプフィルター */}
+      <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:14 }}>
+        <button onClick={()=>setTypeFilter("all")} style={{ background:typeFilter==="all"?"rgba(255,215,0,0.15)":"rgba(255,255,255,0.04)", border:`1px solid ${typeFilter==="all"?"rgba(255,215,0,0.5)":"rgba(255,255,255,0.08)"}`, borderRadius:7, padding:"6px 10px", cursor:"pointer", color:typeFilter==="all"?"#FFD700":"#888", fontSize:12, fontWeight:typeFilter==="all"?700:400 }}>
+          🗺 すべて ({LOCATIONS.length})
+        </button>
+        {Object.entries(SHOP_TYPES).map(([key, st]) => {
+          const cnt = LOCATIONS.filter(l=>l.type===key).length;
+          return (
+            <button key={key} onClick={()=>setTypeFilter(typeFilter===key?"all":key)} style={{ background:typeFilter===key?`${st.color}22`:"rgba(255,255,255,0.04)", border:`1px solid ${typeFilter===key?st.color+"66":"rgba(255,255,255,0.08)"}`, borderRadius:7, padding:"6px 10px", cursor:"pointer", color:typeFilter===key?st.color:"#888", fontSize:12, fontWeight:typeFilter===key?700:400 }}>
+              {st.icon} {st.label} ({cnt})
+            </button>
+          );
+        })}
+      </div>
+
+      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+        {filtered.map(loc => {
+          const cnt = byLoc[loc.id]||0;
+          const st = SHOP_TYPES[loc.type];
+          return (
+            <div key={loc.id} style={{ background:"rgba(20,20,35,0.9)", border:`1px solid ${cnt>0?"rgba(255,215,0,0.2)":"rgba(255,255,255,0.06)"}`, borderRadius:12, padding:"12px 14px", display:"flex", alignItems:"center", gap:12 }}>
+              <div style={{ width:40, height:40, borderRadius:"50%", background:cnt>0?"linear-gradient(135deg,#FFD700,#FF8C00)":`${st.color}22`, border:`2px solid ${cnt>0?"rgba(255,215,0,0.4)":st.color+"44"}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:cnt>0?16:18, fontWeight:800, color:cnt>0?"#000":"#fff", boxShadow:cnt>0?"0 0 10px rgba(255,215,0,0.3)":"none" }}>{cnt>0?cnt:st.icon}</div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
+                  <span style={{ background:`${st.color}22`, color:st.color, fontSize:9, padding:"1px 5px", borderRadius:3, fontWeight:700 }}>{st.label}</span>
+                </div>
+                <div style={{ color:"#E0E0E0", fontWeight:700, fontSize:13 }}>{loc.name}</div>
+                <div style={{ color:"#555", fontSize:11, marginTop:1 }}>{loc.address}</div>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
