@@ -603,7 +603,119 @@ function WatchTab({ watchlist, setWatchlist, alerts, setAlerts }) {
   );
 }
 
-/* ===================== メインアプリ ===================== */
+/* ===================== 履歴タブ ===================== */
+function HistoryTab({ history, onClear }) {
+  const [filterDate, setFilterDate] = useState("today");
+  const [filterType, setFilterType] = useState("all");
+
+  const today = new Date().toDateString();
+  const grouped = {};
+  history.forEach(h => {
+    const d = new Date(h.savedAt).toDateString();
+    if (!grouped[d]) grouped[d] = [];
+    grouped[d].push(h);
+  });
+
+  const dateKeys = Object.keys(grouped).sort((a,b)=>new Date(b)-new Date(a));
+  const displayKeys = filterDate==="today" ? dateKeys.filter(d=>d===today) : dateKeys;
+
+  const formatDate = d => {
+    const dt = new Date(d);
+    const now = new Date();
+    const diff = Math.floor((now - dt) / 86400000);
+    if (diff === 0) return "今日";
+    if (diff === 1) return "昨日";
+    return `${dt.getMonth()+1}月${dt.getDate()}日`;
+  };
+
+  const allCount = history.length;
+  const todayCount = history.filter(h=>new Date(h.savedAt).toDateString()===today).length;
+
+  return (
+    <div>
+      {/* サマリー */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:14 }}>
+        <div style={{ background:"rgba(255,215,0,0.08)", border:"1px solid rgba(255,215,0,0.2)", borderRadius:10, padding:"12px 14px" }}>
+          <div style={{ color:"#FFD700", fontWeight:800, fontSize:24 }}>{todayCount}</div>
+          <div style={{ color:"#666", fontSize:11, marginTop:2 }}>今日のシグナル</div>
+        </div>
+        <div style={{ background:"rgba(0,191,255,0.08)", border:"1px solid rgba(0,191,255,0.2)", borderRadius:10, padding:"12px 14px" }}>
+          <div style={{ color:"#00BFFF", fontWeight:800, fontSize:24 }}>{allCount}</div>
+          <div style={{ color:"#666", fontSize:11, marginTop:2 }}>累計シグナル</div>
+        </div>
+      </div>
+
+      {/* 日付フィルター */}
+      <div style={{ display:"flex", gap:6, marginBottom:12 }}>
+        {[{v:"today",l:"今日"},{v:"all",l:"すべての日"}].map(f=>(
+          <button key={f.v} onClick={()=>setFilterDate(f.v)} style={{ background:filterDate===f.v?"rgba(255,215,0,0.12)":"rgba(255,255,255,0.03)", border:`1px solid ${filterDate===f.v?"rgba(255,215,0,0.4)":"rgba(255,255,255,0.07)"}`, borderRadius:7, padding:"6px 14px", cursor:"pointer", color:filterDate===f.v?"#FFD700":"#666", fontSize:12, fontWeight:filterDate===f.v?700:400 }}>{f.l}</button>
+        ))}
+        <div style={{ flex:1 }} />
+        {history.length>0 && (
+          <button onClick={onClear} style={{ background:"rgba(255,50,50,0.08)", border:"1px solid rgba(255,50,50,0.2)", borderRadius:7, padding:"6px 12px", cursor:"pointer", color:"#FF6666", fontSize:11 }}>履歴を消去</button>
+        )}
+      </div>
+
+      {/* タイプフィルター */}
+      <div style={{ display:"flex", gap:5, marginBottom:14, flexWrap:"wrap" }}>
+        <button onClick={()=>setFilterType("all")} style={{ background:filterType==="all"?"rgba(255,215,0,0.1)":"rgba(255,255,255,0.03)", border:`1px solid ${filterType==="all"?"rgba(255,215,0,0.3)":"rgba(255,255,255,0.06)"}`, borderRadius:6, padding:"4px 10px", cursor:"pointer", color:filterType==="all"?"#FFD700":"#555", fontSize:11 }}>すべて</button>
+        {Object.entries(SIGNAL_TYPES).map(([key,st])=>(
+          <button key={key} onClick={()=>setFilterType(filterType===key?"all":key)} style={{ background:filterType===key?st.bg:"rgba(255,255,255,0.03)", border:`1px solid ${filterType===key?st.color+"55":"rgba(255,255,255,0.06)"}`, borderRadius:6, padding:"4px 10px", cursor:"pointer", color:filterType===key?st.color:"#555", fontSize:11 }}>{st.icon} {st.label}</button>
+        ))}
+      </div>
+
+      {displayKeys.length === 0 ? (
+        <div style={{ textAlign:"center", padding:"48px 20px", color:"#444" }}>
+          <div style={{ fontSize:36, marginBottom:10 }}>📋</div>
+          <div style={{ fontSize:14 }}>履歴がありません</div>
+          <div style={{ fontSize:12, marginTop:6, color:"#333" }}>入荷シグナルが探知されると自動で保存されます</div>
+        </div>
+      ) : (
+        <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          {displayKeys.map(dateKey => {
+            const items = grouped[dateKey].filter(h=>filterType==="all"||h.signalType===filterType);
+            if (items.length===0) return null;
+            return (
+              <div key={dateKey}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                  <span style={{ color:"#FFD700", fontWeight:700, fontSize:13 }}>{formatDate(dateKey)}</span>
+                  <span style={{ color:"#444", fontSize:11 }}>— {items.length}件</span>
+                  <div style={{ flex:1, height:1, background:"rgba(255,255,255,0.05)" }} />
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  {items.map((h,i) => {
+                    const product  = PACK_PRODUCTS.find(p=>p.id===h.productId);
+                    const location = LOCATIONS.find(l=>l.id===h.locationId);
+                    const game     = GAMES.find(g=>g.id===h.game);
+                    const stype    = SIGNAL_TYPES[h.signalType];
+                    const shopType = location ? SHOP_TYPES[location.type] : null;
+                    return (
+                      <div key={i} style={{ background:"rgba(15,15,28,0.9)", border:`1px solid rgba(255,255,255,0.06)`, borderRadius:10, padding:"10px 12px", display:"flex", gap:10, alignItems:"flex-start" }}>
+                        <div style={{ width:36, height:36, borderRadius:8, flexShrink:0, background:`linear-gradient(135deg,${game?.color}22,${game?.color}44)`, border:`1px solid ${game?.color}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18 }}>{product?.image||"📦"}</div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3, flexWrap:"wrap" }}>
+                            <span style={{ background:stype?.bg, color:stype?.color, fontSize:9, padding:"1px 5px", borderRadius:3, fontWeight:700 }}>{stype?.icon} {stype?.label}</span>
+                            <span style={{ color:"#E0E0E0", fontWeight:700, fontSize:13 }}>{product?.name}</span>
+                          </div>
+                          <div style={{ display:"flex", gap:5, alignItems:"center", flexWrap:"wrap" }}>
+                            {shopType && <span style={{ background:`${shopType.color}22`, color:shopType.color, fontSize:9, padding:"1px 5px", borderRadius:3, fontWeight:700 }}>{shopType.icon} {shopType.label}</span>}
+                            <span style={{ color:"#555", fontSize:11 }}>📍 {location?.name}</span>
+                            {h.stock!=null && <span style={{ background:"rgba(0,255,136,0.1)", color:"#00FF88", fontSize:10, padding:"1px 5px", borderRadius:3, fontWeight:700 }}>残{h.stock}個</span>}
+                          </div>
+                          <div style={{ color:"#444", fontSize:10, marginTop:3 }}>{new Date(h.savedAt).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"})} · {h.source}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 export default function App() {
   const [activeTab, setActiveTab]       = useState("search");
   const [listings, setListings]         = useState(MOCK_LISTINGS);
@@ -613,7 +725,21 @@ export default function App() {
   const [alerts, setAlerts]             = useState([]);
   const [watchlist, setWatchlist]       = useState([]);
   const [selectedGames, setSelectedGames] = useState(["pokemon","onepiece"]);
+  const [history, setHistory]           = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("cardradar_history");
+      return saved ? JSON.parse(saved) : [...MOCK_SIGNALS.map(s=>({...s, savedAt:new Date(s.detectedAt).toISOString()}))];
+    } catch { return [...MOCK_SIGNALS.map(s=>({...s, savedAt:new Date(s.detectedAt).toISOString()}))]; }
+  });
   const alertRef = useRef(0);
+
+  useEffect(()=>{
+    try { sessionStorage.setItem("cardradar_history", JSON.stringify(history)); } catch {}
+  },[history]);
+
+  const addToHistory = (sig) => {
+    setHistory(p=>[{...sig, savedAt:new Date().toISOString()},...p].slice(0,200));
+  };
 
   const toggleGame = id =>
     setSelectedGames(p => p.includes(id) ? (p.length>1?p.filter(g=>g!==id):p) : [...p,id]);
@@ -653,6 +779,7 @@ export default function App() {
     setStockSignals(p=>[sig,...p.slice(0,19)]);
     setNewSignalIds(p=>new Set([...p,sig.id]));
     setTimeout(()=>setNewSignalIds(p=>{const s=new Set(p);s.delete(sig.id);return s;}),30000);
+    addToHistory(sig);
     if (sig.signalType==="confirmed"||sig.signalType==="restock") {
       setAlerts(p=>[`📦 【入荷${sig.signalType==="restock"?"再":""}確定】${product?.name} が${LOCATIONS[locId-1].name}で入荷予定！`,...p.slice(0,4)]);
     }
@@ -665,10 +792,11 @@ export default function App() {
   },[addListing,addSignal]);
 
   const TABS = [
-    { id:"search", icon:"🔍", label:"検索" },
-    { id:"radar",  icon:"📡", label:"入荷" },
-    { id:"map",    icon:"📍", label:"マップ" },
-    { id:"watch",  icon:"🔔", label:`ウォッチ${watchlist.length>0?` ${watchlist.length}`:""}` },
+    { id:"search",  icon:"🔍", label:"検索" },
+    { id:"radar",   icon:"📡", label:"入荷" },
+    { id:"history", icon:"📋", label:`履歴${history.length>0?` ${history.filter(h=>new Date(h.savedAt).toDateString()===new Date().toDateString()).length}`:""}` },
+    { id:"map",     icon:"📍", label:"マップ" },
+    { id:"watch",   icon:"🔔", label:`ウォッチ${watchlist.length>0?` ${watchlist.length}`:""}` },
   ];
 
   return (
@@ -704,10 +832,11 @@ export default function App() {
       <div style={{ maxWidth:600, margin:"0 auto", padding:"14px 14px 0" }}>
         <AlertBanner alerts={alerts} onDismiss={i=>setAlerts(p=>p.filter((_,j)=>j!==i))} />
 
-        {activeTab==="search" && <SearchTab listings={listings} newIds={newIds} selectedGames={selectedGames} toggleGame={toggleGame} />}
-        {activeTab==="radar"  && <RadarTab signals={stockSignals} selectedGames={selectedGames} newSignalIds={newSignalIds} onDismissSignal={id=>setStockSignals(p=>p.filter(s=>s.id!==id))} />}
-        {activeTab==="map"    && <MapTab listings={listings} />}
-        {activeTab==="watch"  && <WatchTab watchlist={watchlist} setWatchlist={setWatchlist} alerts={alerts} setAlerts={setAlerts} />}
+        {activeTab==="search"  && <SearchTab listings={listings} newIds={newIds} selectedGames={selectedGames} toggleGame={toggleGame} />}
+        {activeTab==="radar"   && <RadarTab signals={stockSignals} selectedGames={selectedGames} newSignalIds={newSignalIds} onDismissSignal={id=>setStockSignals(p=>p.filter(s=>s.id!==id))} />}
+        {activeTab==="history" && <HistoryTab history={history} onClear={()=>{setHistory([]);try{sessionStorage.removeItem("cardradar_history")}catch{}}} />}
+        {activeTab==="map"     && <MapTab listings={listings} />}
+        {activeTab==="watch"   && <WatchTab watchlist={watchlist} setWatchlist={setWatchlist} alerts={alerts} setAlerts={setAlerts} />}
       </div>
 
       {/* ボトムナビ */}
